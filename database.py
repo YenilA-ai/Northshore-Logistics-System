@@ -67,3 +67,16 @@ def delete_record(record_id):
 
     conn.commit()
     conn.close()
+
+def search_records(keyword):
+    conn = connect()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT * FROM records
+    WHERE name LIKE ?
+    """, ('%' + keyword + '%',))
+
+    rows = cursor.fetchall()
+    conn.close()
+    return rows

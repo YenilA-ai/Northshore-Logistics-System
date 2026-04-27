@@ -3,7 +3,8 @@ from database import (
     insert_record,
     get_all_records,
     update_record,
-    delete_record
+    delete_record,
+    search_records
 )
 
 def menu():
@@ -12,7 +13,8 @@ def menu():
     print("2. View Records")
     print("3. Update Record")
     print("4. Delete Record")
-    print("5. Exit")
+    print("5. Search Records")
+    print("6. Exit")
 
 def main():
     create_table()
@@ -49,6 +51,16 @@ def main():
             print("Record deleted.")
 
         elif choice == "5":
+            keyword = input("Enter name to search: ")
+            results = search_records(keyword)
+
+            if results:
+                for r in results:
+                    print(r)
+            else:
+                print("No records found.")
+
+        elif choice == "6":
             print("Exiting...")
             break
 
