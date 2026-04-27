@@ -16,6 +16,30 @@ def menu():
     print("5. Search Records")
     print("6. Exit")
 
+def get_valid_name():
+    while True:
+        name = input("Enter name: ").strip()
+        if name:
+            return name
+        print("Name cannot be empty.")
+
+def get_valid_age():
+    while True:
+        try:
+            age = int(input("Enter age: "))
+            if age > 0:
+                return age
+            print("Age must be positive.")
+        except:
+            print("Enter a valid number.")
+
+def get_valid_email():
+    while True:
+        email = input("Enter email: ").strip()
+        if "@" in email and "." in email:
+            return email
+        print("Invalid email format.")
+
 def main():
     create_table()
 
@@ -24,9 +48,9 @@ def main():
         choice = input("Enter choice: ")
 
         if choice == "1":
-            name = input("Enter name: ")
-            age = int(input("Enter age: "))
-            email = input("Enter email: ")
+            name = get_valid_name()
+            age = get_valid_age()
+            email = get_valid_email()
 
             insert_record(name, age, email)
             print("Record added.")
@@ -37,18 +61,24 @@ def main():
                 print(r)
 
         elif choice == "3":
-            record_id = int(input("Enter record ID to update: "))
-            name = input("Enter new name: ")
-            age = int(input("Enter new age: "))
-            email = input("Enter new email: ")
+            try:
+                record_id = int(input("Enter record ID to update: "))
+                name = get_valid_name()
+                age = get_valid_age()
+                email = get_valid_email()
 
-            update_record(record_id, name, age, email)
-            print("Record updated.")
+                update_record(record_id, name, age, email)
+                print("Record updated.")
+            except:
+                print("Invalid ID.")
 
         elif choice == "4":
-            record_id = int(input("Enter record ID to delete: "))
-            delete_record(record_id)
-            print("Record deleted.")
+            try:
+                record_id = int(input("Enter record ID to delete: "))
+                delete_record(record_id)
+                print("Record deleted.")
+            except:
+                print("Invalid ID.")
 
         elif choice == "5":
             keyword = input("Enter name to search: ")
