@@ -34,6 +34,7 @@ def insert_record(name, age, email):
     conn.close()
 
 def get_all_records():
+    # Retrieve all records
     conn = connect()
     cursor = conn.cursor()
 
@@ -44,6 +45,7 @@ def get_all_records():
     return rows
 
 def update_record(record_id, name, age, email):
+    # Update existing record
     conn = connect()
     cursor = conn.cursor()
 
@@ -57,6 +59,7 @@ def update_record(record_id, name, age, email):
     conn.close()
 
 def delete_record(record_id):
+    # Delete record by ID
     conn = connect()
     cursor = conn.cursor()
 
@@ -69,6 +72,7 @@ def delete_record(record_id):
     conn.close()
 
 def search_records(keyword):
+    # Search records by name
     conn = connect()
     cursor = conn.cursor()
 
