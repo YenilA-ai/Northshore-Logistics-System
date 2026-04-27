@@ -16,6 +16,19 @@ def menu():
     print("5. Search Records")
     print("6. Exit")
 
+def display_records(records):
+    if not records:
+        print("No records found.")
+        return
+
+    print("\n--- RECORDS ---")
+    for r in records:
+        print(f"ID: {r[0]}")
+        print(f"Name: {r[1]}")
+        print(f"Age: {r[2]}")
+        print(f"Email: {r[3]}")
+        print("------------------")
+
 def get_valid_name():
     while True:
         name = input("Enter name: ").strip()
@@ -57,8 +70,7 @@ def main():
 
         elif choice == "2":
             records = get_all_records()
-            for r in records:
-                print(r)
+            display_records(records)
 
         elif choice == "3":
             try:
@@ -83,12 +95,7 @@ def main():
         elif choice == "5":
             keyword = input("Enter name to search: ")
             results = search_records(keyword)
-
-            if results:
-                for r in results:
-                    print(r)
-            else:
-                print("No records found.")
+            display_records(results)
 
         elif choice == "6":
             print("Exiting...")
