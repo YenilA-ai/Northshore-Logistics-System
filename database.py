@@ -42,3 +42,28 @@ def get_all_records():
 
     conn.close()
     return rows
+
+def update_record(record_id, name, age, email):
+    conn = connect()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    UPDATE records
+    SET name = ?, age = ?, email = ?
+    WHERE id = ?
+    """, (name, age, email, record_id))
+
+    conn.commit()
+    conn.close()
+
+def delete_record(record_id):
+    conn = connect()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    DELETE FROM records
+    WHERE id = ?
+    """, (record_id,))
+
+    conn.commit()
+    conn.close()

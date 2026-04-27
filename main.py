@@ -1,10 +1,18 @@
-from database import create_table, insert_record, get_all_records
+from database import (
+    create_table,
+    insert_record,
+    get_all_records,
+    update_record,
+    delete_record
+)
 
 def menu():
     print("\n--- MENU ---")
     print("1. Add Record")
     print("2. View Records")
-    print("3. Exit")
+    print("3. Update Record")
+    print("4. Delete Record")
+    print("5. Exit")
 
 def main():
     create_table()
@@ -27,6 +35,20 @@ def main():
                 print(r)
 
         elif choice == "3":
+            record_id = int(input("Enter record ID to update: "))
+            name = input("Enter new name: ")
+            age = int(input("Enter new age: "))
+            email = input("Enter new email: ")
+
+            update_record(record_id, name, age, email)
+            print("Record updated.")
+
+        elif choice == "4":
+            record_id = int(input("Enter record ID to delete: "))
+            delete_record(record_id)
+            print("Record deleted.")
+
+        elif choice == "5":
             print("Exiting...")
             break
 
