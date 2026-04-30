@@ -10,75 +10,68 @@ def create_table():
     cursor = conn.cursor()
 
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS records (
+    CREATE TABLE IF NOT EXISTS inventory (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        age INTEGER,
-        email TEXT
+        item_name TEXT NOT NULL,
+        quantity INTEGER,
+        location TEXT
     )
     """)
 
     conn.commit()
     conn.close()
 
-def insert_record(name, age, email):
+def insert_record(item_name, quantity, location):
     conn = connect()
     cursor = conn.cursor()
 
     cursor.execute("""
-    INSERT INTO records (name, age, email)
+    INSERT INTO inventory (item_name, quantity, location)
     VALUES (?, ?, ?)
-    """, (name, age, email))
+    """, (item_name, quantity, location))
 
     conn.commit()
     conn.close()
 
 def get_all_records():
-    # Retrieve all records
     conn = connect()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM records")
+    cursor.execute("SELECT * FROM inventory")
     rows = cursor.fetchall()
 
     conn.close()
     return rows
 
-def update_record(record_id, name, age, email):
-    # Update existing record
+def update_record(record_id, item_name, quantity, location):
     conn = connect()
     cursor = conn.cursor()
 
     cursor.execute("""
-    UPDATE records
-    SET name = ?, age = ?, email = ?
+    UPDATE inventory
+    SET item_name = ?, quantity = ?, location = ?
     WHERE id = ?
-    """, (name, age, email, record_id))
+    """, (item_name, quantity, location, record_id))
 
     conn.commit()
     conn.close()
 
 def delete_record(record_id):
-    # Delete record by ID
     conn = connect()
     cursor = conn.cursor()
 
-    cursor.execute("""
-    DELETE FROM records
-    WHERE id = ?
-    """, (record_id,))
+    cursor.execute("DELETE FROM inventory WHERE id = ?", (record_id,))
 
     conn.commit()
     conn.close()
 
 def search_records(keyword):
-    # Search records by name
     conn = connect()
     cursor = conn.cursor()
 
     cursor.execute("""
-    SELECT * FROM records
-    WHERE name LIKE ?
+    SELECT * FROM inventory
+    WHERE item_name LIKE ?
     """, ('%' + keyword + '%',))
 
     rows = cursor.fetchall()

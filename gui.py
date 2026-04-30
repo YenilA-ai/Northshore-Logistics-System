@@ -1,168 +1,182 @@
 import tkinter as tk
 from tkinter import messagebox
-from database import (
-    insert_record,
-    get_all_records,
-    update_record,
-    delete_record,
-    search_records,
-    create_table
-)
+from database import *
 
 create_table()
 
-# ---------- FUNCTIONS ----------
+selected_id = None
+
+# ---------------- FUNCTIONS ---------------- #
+
+def clear_fields():
+    item_entry.delete(0, tk.END)
+    qty_entry.delete(0, tk.END)
+    loc_entry.delete(0, tk.END)
 
 def add_record():
-    name = name_entry.get()
-    age = age_entry.get()
-    email = email_entry.get()
+    name = item_entry.get()
+    qty = qty_entry.get()
+    loc = loc_entry.get()
 
-    if not name or not age or not email:
-        messagebox.showerror("Error", "All fields required")
+    if not name or not qty:
+        messagebox.showerror("Error", "Fill all required fields")
         return
 
-    try:
-        age = int(age)
-    except:
-        messagebox.showerror("Error", "Age must be number")
-        return
-
-    insert_record(name, age, email)
-    messagebox.showinfo("Success", "Record added")
-    clear_fields()
+    insert_record(name, int(qty), loc)
     view_records()
+    clear_fields()
 
 def view_records():
     listbox.delete(0, tk.END)
-    records = get_all_records()
-    for r in records:
-        listbox.insert(tk.END, f"{r[0]} | {r[1]} | {r[2]} | {r[3]}")
+    for row in get_all_records():
+        listbox.insert(tk.END, f"ID:{row[0]} | {row[1]} | Qty:{row[2]} | {row[3]}")
 
-def delete_selected():
-    selected = listbox.get(tk.ACTIVE)
-    if not selected:
+def on_select(event):
+    global selected_id
+
+    if not listbox.curselection():
         return
 
-    record_id = int(selected.split("|")[0])
-    delete_record(record_id)
-    view_records()
-    clear_fields()
+    index = listbox.curselection()[0]
+    text = listbox.get(index)
+
+    parts = text.split("|")
+    selected_id = int(parts[0].replace("ID:", "").strip())
+
+    item_entry.delete(0, tk.END)
+    item_entry.insert(0, parts[1].strip())
+
+    qty_entry.delete(0, tk.END)
+    qty_entry.insert(0, parts[2].replace("Qty:", "").strip())
+
+    loc_entry.delete(0, tk.END)
+    loc_entry.insert(0, parts[3].strip())
 
 def update_selected():
-    selected = listbox.get(tk.ACTIVE)
-    if not selected:
+    if selected_id is None:
+        messagebox.showerror("Error", "Select a record")
         return
 
-    record_id = int(selected.split("|")[0])
-    name = name_entry.get()
-    age = age_entry.get()
-    email = email_entry.get()
+    update_record(
+        selected_id,
+        item_entry.get(),
+        int(qty_entry.get()),
+        loc_entry.get()
+    )
+    view_records()
 
-    if not name or not age or not email:
-        messagebox.showerror("Error", "All fields required")
+def delete_selected():
+    if selected_id is None:
+        messagebox.showerror("Error", "Select a record")
         return
 
-    try:
-        age = int(age)
-    except:
-        messagebox.showerror("Error", "Age must be number")
-        return
-
-    update_record(record_id, name, age, email)
-    messagebox.showinfo("Success", "Record updated")
+    delete_record(selected_id)
     view_records()
     clear_fields()
 
-def search_record():
+def search():
     keyword = search_entry.get()
     listbox.delete(0, tk.END)
 
-    results = search_records(keyword)
-    for r in results:
-        listbox.insert(tk.END, f"{r[0]} | {r[1]} | {r[2]} | {r[3]}")
+    for row in search_records(keyword):
+        listbox.insert(tk.END, f"ID:{row[0]} | {row[1]} | Qty:{row[2]} | {row[3]}")
 
-def clear_fields():
-    name_entry.delete(0, tk.END)
-    age_entry.delete(0, tk.END)
-    email_entry.delete(0, tk.END)
+# ---------------- NAVIGATION ---------------- #
 
-# ---------- NEW FEATURE (AUTO-FILL) ----------
+def show_inventory():
+    clear_main()
+    inventory_frame.pack(fill="both", expand=True)
 
-def load_selected(event):
-    selected = listbox.get(tk.ACTIVE)
-    if not selected:
-        return
+def show_dashboard():
+    clear_main()
+    dashboard_frame.pack(fill="both", expand=True)
 
-    parts = selected.split("|")
+def clear_main():
+    inventory_frame.pack_forget()
+    dashboard_frame.pack_forget()
 
-    name = parts[1].strip()
-    age = parts[2].strip()
-    email = parts[3].strip()
-
-    clear_fields()
-
-    name_entry.insert(0, name)
-    age_entry.insert(0, age)
-    email_entry.insert(0, email)
-
-# ---------- UI ----------
+# ---------------- GUI ---------------- #
 
 root = tk.Tk()
-root.title("Student Record Manager")
-root.geometry("600x500")
-root.configure(bg="#f4f6f8")
+root.title("Northshore Logistics Ltd")
+root.geometry("800x500")
 
-# Title
-title = tk.Label(
-    root,
-    text="Student Record Manager",
-    font=("Arial", 16, "bold"),
-    bg="#f4f6f8"
-)
-title.grid(row=0, column=0, columnspan=4, pady=10)
+# TOP BAR
+top_frame = tk.Frame(root, bg="#2c3e50", height=50)
+top_frame.pack(fill="x")
 
-# Inputs
-tk.Label(root, text="Name", bg="#f4f6f8").grid(row=1, column=0, pady=5)
-name_entry = tk.Entry(root)
-name_entry.grid(row=1, column=1)
+tk.Label(top_frame, text="Northshore Logistics Ltd",
+         fg="white", bg="#2c3e50",
+         font=("Arial", 14, "bold")).pack(side="left", padx=10)
 
-tk.Label(root, text="Age", bg="#f4f6f8").grid(row=2, column=0, pady=5)
-age_entry = tk.Entry(root)
-age_entry.grid(row=2, column=1)
+# NAV BAR
+nav_frame = tk.Frame(root, bg="#34495e")
+nav_frame.pack(fill="x")
 
-tk.Label(root, text="Email", bg="#f4f6f8").grid(row=3, column=0, pady=5)
-email_entry = tk.Entry(root)
-email_entry.grid(row=3, column=1)
+tk.Button(nav_frame, text="Dashboard", command=show_dashboard, bg="#34495e", fg="white").pack(side="left", padx=5, pady=5)
+tk.Button(nav_frame, text="Inventory", command=show_inventory, bg="#34495e", fg="white").pack(side="left", padx=5)
 
-# Buttons
-tk.Button(root, text="Add", bg="#4CAF50", fg="white", width=12, command=add_record)\
-    .grid(row=1, column=2, padx=10)
+# ---------------- DASHBOARD ---------------- #
 
-tk.Button(root, text="Update", bg="#4CAF50", fg="white", width=12, command=update_selected)\
-    .grid(row=2, column=2)
+dashboard_frame = tk.Frame(root)
 
-tk.Button(root, text="Delete", bg="#e74c3c", fg="white", width=12, command=delete_selected)\
-    .grid(row=3, column=2)
+tk.Label(dashboard_frame, text="Dashboard Overview",
+         font=("Arial", 16, "bold")).pack(pady=20)
 
-# Search
-tk.Label(root, text="Search", bg="#f4f6f8").grid(row=4, column=0, pady=10)
-search_entry = tk.Entry(root)
-search_entry.grid(row=4, column=1)
+dashboard_text = tk.Text(dashboard_frame, height=10, width=60)
+dashboard_text.pack()
 
-tk.Button(root, text="Search", bg="#4CAF50", fg="white", width=12, command=search_record)\
-    .grid(row=4, column=2)
+def load_dashboard():
+    records = get_all_records()
+    dashboard_text.delete("1.0", tk.END)
+    dashboard_text.insert(tk.END, f"Total Items: {len(records)}\n")
 
-tk.Button(root, text="View All", bg="#3498db", fg="white", width=12, command=view_records)\
-    .grid(row=5, column=2, pady=5)
+load_dashboard()
 
-# Listbox
-listbox = tk.Listbox(root, width=70, height=15)
-listbox.grid(row=6, column=0, columnspan=4, pady=10)
+# ---------------- INVENTORY ---------------- #
 
-# Bind selection event
-listbox.bind("<<ListboxSelect>>", load_selected)
+inventory_frame = tk.Frame(root)
 
+form_frame = tk.Frame(inventory_frame)
+form_frame.pack(pady=10)
+
+tk.Label(form_frame, text="Item Name").grid(row=0, column=0)
+item_entry = tk.Entry(form_frame)
+item_entry.grid(row=0, column=1)
+
+tk.Label(form_frame, text="Quantity").grid(row=1, column=0)
+qty_entry = tk.Entry(form_frame)
+qty_entry.grid(row=1, column=1)
+
+tk.Label(form_frame, text="Location").grid(row=2, column=0)
+loc_entry = tk.Entry(form_frame)
+loc_entry.grid(row=2, column=1)
+
+# BUTTONS
+btn_frame = tk.Frame(inventory_frame)
+btn_frame.pack()
+
+tk.Button(btn_frame, text="Add", bg="green", fg="white", width=10, command=add_record).grid(row=0, column=0, padx=5, pady=5)
+tk.Button(btn_frame, text="Update", bg="blue", fg="white", width=10, command=update_selected).grid(row=0, column=1, padx=5)
+tk.Button(btn_frame, text="Delete", bg="red", fg="white", width=10, command=delete_selected).grid(row=0, column=2, padx=5)
+
+# SEARCH
+search_frame = tk.Frame(inventory_frame)
+search_frame.pack(pady=10)
+
+search_entry = tk.Entry(search_frame)
+search_entry.grid(row=0, column=0)
+
+tk.Button(search_frame, text="Search", command=search).grid(row=0, column=1, padx=5)
+tk.Button(search_frame, text="View All", command=view_records).grid(row=0, column=2)
+
+# LISTBOX
+listbox = tk.Listbox(inventory_frame, width=80, height=10)
+listbox.pack(pady=10)
+listbox.bind("<<ListboxSelect>>", on_select)
+
+# START DEFAULT
+show_inventory()
 view_records()
 
 root.mainloop()
