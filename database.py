@@ -1,79 +1,74 @@
 import sqlite3
 
-DB_NAME = "app.db"
+DB = "logistics.db"
 
 def connect():
-    return sqlite3.connect(DB_NAME)
+    return sqlite3.connect(DB)
 
-def create_table():
+def create_tables():
     conn = connect()
-    cursor = conn.cursor()
+    c = conn.cursor()
 
-    cursor.execute("""
+    # USERS (Admin, Staff, Driver)
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT,
+        password TEXT,
+        role TEXT
+    )
+    """)
+
+    # SHIPMENTS
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS shipments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        order_number TEXT,
+        sender TEXT,
+        receiver TEXT,
+        item TEXT,
+        status TEXT,
+        driver_id INTEGER
+    )
+    """)
+
+    # INVENTORY
+    c.execute("""
     CREATE TABLE IF NOT EXISTS inventory (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        item_name TEXT NOT NULL,
+        item_name TEXT,
         quantity INTEGER,
-        location TEXT
+        warehouse TEXT
+    )
+    """)
+
+    # VEHICLES
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS vehicles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        capacity INTEGER,
+        status TEXT
+    )
+    """)
+
+    # DRIVERS
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS drivers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        phone TEXT
+    )
+    """)
+
+    # LOGS
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        action TEXT,
+        user TEXT
     )
     """)
 
     conn.commit()
     conn.close()
-
-def insert_record(item_name, quantity, location):
-    conn = connect()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-    INSERT INTO inventory (item_name, quantity, location)
-    VALUES (?, ?, ?)
-    """, (item_name, quantity, location))
-
-    conn.commit()
-    conn.close()
-
-def get_all_records():
-    conn = connect()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM inventory")
-    rows = cursor.fetchall()
-
-    conn.close()
-    return rows
-
-def update_record(record_id, item_name, quantity, location):
-    conn = connect()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-    UPDATE inventory
-    SET item_name = ?, quantity = ?, location = ?
-    WHERE id = ?
-    """, (item_name, quantity, location, record_id))
-
-    conn.commit()
-    conn.close()
-
-def delete_record(record_id):
-    conn = connect()
-    cursor = conn.cursor()
-
-    cursor.execute("DELETE FROM inventory WHERE id = ?", (record_id,))
-
-    conn.commit()
-    conn.close()
-
-def search_records(keyword):
-    conn = connect()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-    SELECT * FROM inventory
-    WHERE item_name LIKE ?
-    """, ('%' + keyword + '%',))
-
-    rows = cursor.fetchall()
-    conn.close()
-    return rows
